@@ -1,0 +1,4 @@
+aiogram==2.24
+openai==0.28.1
+gspread==5.12.0
+oauth2client==3.0.0

@@ -1,0 +1,13 @@
+from src.types import TList
+
+BOT_TOKEN = "..."
+
+ADMIN_CHAT = 0
+CHANNEL_PUBLIC_CHATS = {
+    TList.RU: 0,
+}
+
+# Google Service
+GS_SERVICE_ACCOUNT_FILE = '...'
+GS_TEMPLATE_FILE_ID = "..."
+GS_ROOT_FOLDER_ID = "..."

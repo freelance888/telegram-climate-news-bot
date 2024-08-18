@@ -1,3 +1,15 @@
+# project
+config.py
+bot.sqlite
+prod.bot.sqlite
+*.out
+.DS_Store
+document.json
+test.py
+google-drive-credentials.json
+.vscode/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
