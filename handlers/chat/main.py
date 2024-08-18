@@ -34,13 +34,15 @@ class ChatMessagingWithBotLogic:
             table = await parseDigest(text, self.message.entities)
             partNum = matchRes.group(1) if matchRes.group(1) else None
             date = datetime.now()
+            curMonth = date.month if date.month > 9 else f"0{date.month}"
+            curDay = date.day if date.day > 9 else f"0{date.day}"
             currentMonthName = date.strftime('%B')
             folderId = await googleDrive.createFolderIfNotExists(f"{date.year}", config.GS_ROOT_FOLDER_ID)
-            folderId = await googleDrive.createFolderIfNotExists(f"{date.month} ({currentMonthName})", folderId)
+            folderId = await googleDrive.createFolderIfNotExists(f"{curMonth} ({currentMonthName})", folderId)
             fileId = await googleDrive.cloneFile(
                 config.GS_TEMPLATE_FILE_ID,
                 folderId,
-                f"{date.year}-{date.month}-{date.day} BN" + (f" part {partNum}" if partNum else "")
+                f"{date.year}-{curMonth}-{curDay} BN" + (f" part {partNum}" if partNum else "")
             )
 
             await googleDocs.insertTable(fileId, table)
