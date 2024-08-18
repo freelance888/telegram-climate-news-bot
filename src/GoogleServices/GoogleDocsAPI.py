@@ -25,8 +25,8 @@ class GoogleDocsAPI(GoogleService):
             }
         ]
 
-        self._service.documents().batchUpdate(documentId=documentId, body={'requests': requests}).execute()
-        document = self._service.documents().get(documentId=documentId).execute()
+        await self.retry(self._service.documents().batchUpdate(documentId=documentId, body={'requests': requests}))
+        document = await self.retry(self._service.documents().get(documentId=documentId))
 
         content = document.get('body').get('content')
         contentLen = len(content)
@@ -55,4 +55,4 @@ class GoogleDocsAPI(GoogleService):
 
             startIndex -= 1
 
-        self._service.documents().batchUpdate(documentId=documentId, body={'requests': requests}).execute()
+        await self.retry(self._service.documents().batchUpdate(documentId=documentId, body={'requests': requests}))

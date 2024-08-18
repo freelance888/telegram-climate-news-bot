@@ -11,17 +11,17 @@ class GoogleDriveAPI(GoogleService):
             'parents': [folderId]
         }
 
-        res = self._service.files().copy(fileId=fileId, body=copy_metadata, supportsAllDrives=True).execute()
+        res = await self.retry(self._service.files().copy(fileId=fileId, body=copy_metadata, supportsAllDrives=True))
 
         return res.get('id')
 
     async def createFolderIfNotExists(self, name: str, parentFolderId: str):
-        response = self._service.files().list(
+        response = await self.retry(self._service.files().list(
             q=f"name='{name}' and mimeType='application/vnd.google-apps.folder' and trashed=false and '{parentFolderId}' in parents",
             fields="files(id, name)",
             supportsAllDrives=True,
             includeItemsFromAllDrives=True
-        ).execute()
+        ))
 
         folder = next((file for file in response.get('files', [])), None)
 
@@ -34,8 +34,8 @@ class GoogleDriveAPI(GoogleService):
             'parents': [parentFolderId]
         }
 
-        created_folder = self._service.files().create(
+        created_folder = await self.retry(self._service.files().create(
             body=folder_metadata, fields='id'
-        ).execute()
+        ))
 
         return created_folder['id']

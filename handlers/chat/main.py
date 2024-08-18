@@ -28,17 +28,20 @@ class ChatMessagingWithBotLogic:
 
     async def _publicChatTextHandler(self):
         text = self.message.text
+        matchRes = re.match(r"^Дайджест\s+\d{2}\.\d{2}\.\d{2,4}(?:\s+\w+\s+(\d+))?", text)
 
-        if re.match(r"^Дайджест\s+\d{2}\.\d{2}\.\d{2,4}(?:\s+часть\s+\d+)?", text):
-            header = text[:text.find('\n')]
-            header = header[header.find(' ') + 1:]
+        if matchRes:
             table = await parseDigest(text, self.message.entities)
-            currentYear = datetime.now().year
-            correntMonth = datetime.now().month
-            currentMonthName = datetime.now().strftime('%B')
-            folderId = await googleDrive.createFolderIfNotExists(f"{currentYear}", config.GS_ROOT_FOLDER_ID)
-            folderId = await googleDrive.createFolderIfNotExists(f"{correntMonth} ({currentMonthName})", folderId)
-            fileId = await googleDrive.cloneFile(config.GS_TEMPLATE_FILE_ID, folderId, header)
+            partNum = matchRes.group(1) if matchRes.group(1) else None
+            date = datetime.now()
+            currentMonthName = date.strftime('%B')
+            folderId = await googleDrive.createFolderIfNotExists(f"{date.year}", config.GS_ROOT_FOLDER_ID)
+            folderId = await googleDrive.createFolderIfNotExists(f"{date.month} ({currentMonthName})", folderId)
+            fileId = await googleDrive.cloneFile(
+                config.GS_TEMPLATE_FILE_ID,
+                folderId,
+                f"{date.year}-{date.month}-{date.day} BN" + (f" part {partNum}" if partNum else "")
+            )
 
             await googleDocs.insertTable(fileId, table)
 
