@@ -18,7 +18,9 @@ class GoogleDriveAPI(GoogleService):
     async def createFolderIfNotExists(self, name: str, parentFolderId: str):
         response = self._service.files().list(
             q=f"name='{name}' and mimeType='application/vnd.google-apps.folder' and trashed=false and '{parentFolderId}' in parents",
-            fields="files(id, name)"
+            fields="files(id, name)",
+            supportsAllDrives=True,
+            includeItemsFromAllDrives=True
         ).execute()
 
         folder = next((file for file in response.get('files', [])), None)
