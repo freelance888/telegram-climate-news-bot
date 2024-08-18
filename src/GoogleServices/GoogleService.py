@@ -16,7 +16,7 @@ class GoogleService:
     async def retry(self, build):
         for i in range(self.MAX_RETRIES):
             try:
-                return await build.execute()
+                return build.execute()
             except HttpError as error:
                 if error.resp.status in [500, 502, 503, 504]:
                     await asyncio.sleep(2 ** i)
