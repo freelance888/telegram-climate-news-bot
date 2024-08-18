@@ -11,7 +11,7 @@ class GoogleDriveAPI(GoogleService):
             'parents': [folderId]
         }
 
-        res = self._service.files().copy(fileId=fileId, body=copy_metadata, supportsAllDrives=True, includeItemsFromAllDrives=True).execute()
+        res = self._service.files().copy(fileId=fileId, body=copy_metadata, supportsAllDrives=True).execute()
 
         return res.get('id')
 
