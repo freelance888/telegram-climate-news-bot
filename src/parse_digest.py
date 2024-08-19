@@ -5,25 +5,27 @@ import logging
 
 translator = Translator()
 
-async def __appedTotable(table: list, item1: str, links: list = [], specialCaseFlag: bool = False):
+async def __appedTotable(table: list, text: str, links: list = [], specialCaseFlag: bool = False):
     translatedText = ''
+    bufText = text
 
     try:
-        translated = translator.translate(item1, src='ru', dest='en')
+        # some specific cases
+        if specialCaseFlag:
+            if 'https://rumble.com/c/CreativesocietyOfficial' in bufText:
+                bufText = bufText.replace(
+                    'https://rumble.com/c/CreativesocietyOfficial',
+                    'https://rumble.com/c/CreativeSociety'
+                )
+
+        # do translation
+        translated = translator.translate(bufText, src='ru', dest='en')
         translatedText = translated.text
     except Exception as e:
         logging.error(e)
 
-    # some specific cases
-    if specialCaseFlag:
-        if 'https://rumble.com/c/CreativesocietyOfficial' in translatedText:
-            translatedText = translatedText.replace(
-                'https://rumble.com/c/CreativesocietyOfficial',
-                'https://rumble.com/c/CreativeSociety'
-        )
-
     table.append([
-        {'type': 'text', 'src': item1},
+        {'type': 'text', 'src': text},
         {'type': 'link', 'src': links},
         {'type': 'text', 'src': translatedText}
     ])

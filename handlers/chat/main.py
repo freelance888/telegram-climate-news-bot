@@ -31,9 +31,12 @@ class ChatMessagingWithBotLogic:
         matchRes = re.match(r"^Дайджест\s+\d{2}\.\d{2}\.\d{2,4}(?:\s+\w+\s+(\d+))?", text)
 
         if matchRes:
+            date = datetime.now()
+
+            logging.info(f"[{date}] Digest ({matchRes.group(0)}) was requested")
+
             table = await parseDigest(text, self.message.entities)
             partNum = matchRes.group(1) if matchRes.group(1) else None
-            date = datetime.now()
             curMonth = date.month if date.month > 9 else f"0{date.month}"
             curDay = date.day if date.day > 9 else f"0{date.day}"
             currentMonthName = date.strftime('%B')
@@ -46,7 +49,8 @@ class ChatMessagingWithBotLogic:
             )
 
             await googleDocs.insertTable(fileId, table)
-            logging.info(f"Digest was created: [{date}] {fileId}")
+
+            logging.info(f"[{datetime.now()}] Digest was created: {fileId}")
 
         _exit()
 

@@ -3,6 +3,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import asyncio
 import config
+import logging
 
 class GoogleService:
     MAX_RETRIES = 5
@@ -17,12 +18,14 @@ class GoogleService:
         for i in range(self.MAX_RETRIES):
             try:
                 return build.execute()
-            except HttpError as error:
-                if error.resp.status in [500, 502, 503, 504]:
+            except HttpError as e:
+                if e.resp.status in [500, 502, 503, 504]:
+                    logging.error(f'HttpError: {e} - {i}')
                     await asyncio.sleep(2 ** i)
                 else:
                     raise
             except BrokenPipeError:
+                logging.error(f'BrokenPipeError: {i}')
                 await asyncio.sleep(2 ** i)
 
         raise Exception('Max retries exceeded')
