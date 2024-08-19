@@ -5,7 +5,7 @@ import logging
 
 translator = Translator()
 
-async def __appedTotable(table: list, item1: str, links: list = []):
+async def __appedTotable(table: list, item1: str, links: list = [], specialCaseFlag: bool = False):
     translatedText = ''
 
     try:
@@ -13,6 +13,14 @@ async def __appedTotable(table: list, item1: str, links: list = []):
         translatedText = translated.text
     except Exception as e:
         logging.error(e)
+
+    # some specific cases
+    if specialCaseFlag:
+        if 'https://rumble.com/c/CreativesocietyOfficial' in translatedText:
+            translatedText = translatedText.replace(
+                'https://rumble.com/c/CreativesocietyOfficial',
+                'https://rumble.com/c/CreativeSociety'
+        )
 
     table.append([
         {'type': 'text', 'src': item1},
@@ -57,6 +65,6 @@ async def parseDigest(text: str, entities: list[MessageEntity]) -> list:
         await __appedTotable(table, item, links)
 
     if tmpStr != '':
-        await __appedTotable(table, tmpStr)
+        await __appedTotable(table, tmpStr, specialCaseFlag=True)
 
     return table
