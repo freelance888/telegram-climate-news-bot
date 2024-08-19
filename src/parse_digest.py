@@ -1,29 +1,25 @@
 import re
 from aiogram.types import MessageEntity
-from googletrans import Translator
-import logging
 
-translator = Translator()
+# import logging
+# from googletrans import Translator
+# translator = Translator()
+# try:
+#     translated = translator.translate(text, src='ru', dest='en')
+#     translatedText = translated.text
+# except Exception as e:
+#     logging.error(e)
 
-async def __appedTotable(table: list, text: str, links: list = [], specialCaseFlag: bool = False):
-    translatedText = ''
-    bufText = text
+enEndText = """❗️Learn about what is happening to our planet Earth and the true causes of climate change on the forum:
 
-    try:
-        # some specific cases
-        if specialCaseFlag:
-            if 'https://rumble.com/c/CreativesocietyOfficial' in bufText:
-                bufText = bufText.replace(
-                    'https://rumble.com/c/CreativesocietyOfficial',
-                    'https://rumble.com/c/CreativeSociety'
-                )
+🔴 "Global Crisis. The Responsibility" 🔴
 
-        # do translation
-        translated = translator.translate(bufText, src='ru', dest='en')
-        translatedText = translated.text
-    except Exception as e:
-        logging.error(e)
+https://rumble.com/c/CreativeSociety
 
+If you already understand the seriousness of what is happening, please share this information! Only by informing humanity and creating a public demand for the collaboration of scientists can we survive the escalating natural disasters!
+"""
+
+async def __appedTotable(table: list, text: str, links: list = [], translatedText: str = ''):
     table.append([
         {'type': 'text', 'src': text},
         {'type': 'link', 'src': links},
@@ -67,6 +63,7 @@ async def parseDigest(text: str, entities: list[MessageEntity]) -> list:
         await __appedTotable(table, item, links)
 
     if tmpStr != '':
-        await __appedTotable(table, tmpStr, specialCaseFlag=True)
+        translatedText = enEndText if 'https://rumble.com/c/CreativesocietyOfficial' in tmpStr else ''
+        await __appedTotable(table, tmpStr, translatedText=translatedText)
 
     return table
