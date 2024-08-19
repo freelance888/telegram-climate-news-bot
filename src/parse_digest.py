@@ -1,12 +1,33 @@
 import re
 from aiogram.types import MessageEntity
+from googletrans import Translator
+import logging
+
+translator = Translator()
+
+async def __appedTotable(table: list, item1: str, links: list = []):
+    translatedText = ''
+
+    try:
+        translated = translator.translate(item1, src='ru', dest='en')
+        translatedText = translated.text
+    except Exception as e:
+        logging.error(e)
+
+    table.append([
+        {'type': 'text', 'src': item1},
+        {'type': 'link', 'src': links},
+        {'type': 'text', 'src': translatedText}
+    ])
 
 async def parseDigest(text: str, entities: list[MessageEntity]) -> list:
     urls = []
     keyWord = 'Источник'
-    table = [
-        ['Ru', 'Источники', 'En']
-    ]
+    table = [[
+        {'type': 'text', 'src': 'Ru'},
+        {'type': 'text', 'src': 'Источники'},
+        {'type': 'text', 'src': 'En'}
+    ]]
 
     for entity in entities:
         if entity.type == 'text_link':
@@ -25,18 +46,17 @@ async def parseDigest(text: str, entities: list[MessageEntity]) -> list:
             continue
 
         if tmpStr != '':
-            table.append([tmpStr, '', ''])
+            await __appedTotable(table, tmpStr)
             tmpStr = ''
 
         keyWordsCount = len(re.split(f"{keyWord}\s+", item))
-        links = ''
+        links = []
         for i in range(keyWordsCount):
-            links += urls.pop(0) + "\n\n"
-        links = links.strip()
+            links.append(urls.pop(0))
 
-        table.append([item, links, ''])
+        await __appedTotable(table, item, links)
 
     if tmpStr != '':
-        table.append([tmpStr, '', ''])
+        await __appedTotable(table, tmpStr)
 
     return table

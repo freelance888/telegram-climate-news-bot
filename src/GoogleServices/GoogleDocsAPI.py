@@ -5,6 +5,32 @@ class GoogleDocsAPI(GoogleService):
     def __init__(self):
         super().__init__('docs', 'v1', ['https://www.googleapis.com/auth/documents'])
 
+    async def __insertText(self, requests: list, text: str, index: int):
+        requests.append({
+            'insertText': {
+                'text': text,
+                'location': {
+                    'index': index
+                }
+            }
+        })
+
+    async def __updateLink(self, requests: list, startIndex: int, endIndex: int, url: str):
+        requests.append({
+            'updateTextStyle': {
+                'range': {
+                    'startIndex': startIndex,
+                    'endIndex': endIndex
+                },
+                'textStyle': {
+                    'link': {
+                        'url': url
+                    }
+                },
+                'fields': 'link'
+            }
+        })
+
     async def insertTable(self, documentId: str, table: list):
         if not table:
             raise Exception('Table is empty')
@@ -42,15 +68,18 @@ class GoogleDocsAPI(GoogleService):
         for row in table:
             row = row[::-1]
             for cell in row:
-                if cell != '':
-                    requests.append({
-                        'insertText': {
-                            'text': cell,
-                            'location': {
-                                'index': startIndex
-                            }
-                        }
-                    })
+                if cell['type'] == 'text' and cell['src'] != '':
+                    await self.__insertText(requests, cell['src'], startIndex)
+                elif cell['type'] == 'link' and cell['src']:
+                    cell['src'] = cell['src'][::-1]
+                    linksLen = len(cell['src'])
+                    i = 0
+                    for link in cell['src']:
+                        await self.__insertText(requests, link, startIndex)
+                        await self.__updateLink(requests, startIndex, startIndex + len(link), link)
+                        if i < linksLen - 1:
+                            await self.__insertText(requests, '\n\n', startIndex)
+                        i += 1
                 startIndex -= 2
 
             startIndex -= 1

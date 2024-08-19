@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
-import config
+from config import ADMIN_CHAT, CHANNEL_PUBLIC_CHATS
 from src.utils import getDeepestValues
 
 class IsPersonalMsgFilter(BoundFilter):
@@ -18,11 +18,11 @@ class IsChatMsgFilter(BoundFilter):
 
     @staticmethod
     async def adminChat(message: types.Message):
-        return (message.chat.id == config.ADMIN_CHAT)
+        return (message.chat.id == ADMIN_CHAT)
 
     @staticmethod
     async def publicChat(message: types.Message):
-        chatIds = getDeepestValues(config.CHANNEL_PUBLIC_CHATS)
+        chatIds = getDeepestValues(CHANNEL_PUBLIC_CHATS)
         return (message.chat.id in chatIds)
 
     @staticmethod
