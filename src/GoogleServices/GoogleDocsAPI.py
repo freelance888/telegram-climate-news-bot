@@ -31,6 +31,9 @@ class GoogleDocsAPI(GoogleService):
             }
         })
 
+    async def getDocumentById(self, fileId: str):
+        return await self.retry(self._service.documents().get(documentId=fileId))
+
     async def insertTable(self, documentId: str, table: list):
         if not table:
             raise Exception('Table is empty')
@@ -85,3 +88,40 @@ class GoogleDocsAPI(GoogleService):
             startIndex -= 1
 
         await self.retry(self._service.documents().batchUpdate(documentId=documentId, body={'requests': requests}))
+
+    async def getTableFromDocument(self, documentId: str):
+        document = await self.getDocumentById(documentId)
+        content = document.get('body').get('content')
+        contentLen = len(content)
+        docTable = content[contentLen - 2].get('table')
+
+        if not docTable:
+            raise Exception(f'Table not found - {documentId}')
+
+        table = []
+
+        for row in docTable.get('tableRows'):
+            tableRow = []
+            for cell in row.get('tableCells'):
+                cellContent = cell.get('content')
+                cellContentLen = len(cellContent)
+                cellText = ''
+                cellLink = []
+                for i in range(cellContentLen):
+                    cellElement = cellContent[i]
+                    if 'textRun' in cellElement:
+                        cellText += cellElement.get('textRun').get('content')
+                    elif 'paragraph' in cellElement:
+                        paragraphElements = cellElement.get('paragraph').get('elements')
+                        for paragraphElement in paragraphElements:
+                            if 'textRun' in paragraphElement:
+                                cellText += paragraphElement.get('textRun').get('content')
+                            elif 'link' in paragraphElement:
+                                cellLink.append(paragraphElement.get('link').get('url'))
+                tableRow.append({
+                    'type': 'text' if not cellLink else 'link',
+                    'src': cellLink if cellLink else cellText
+                })
+            table.append(tableRow)
+
+        return table

@@ -6,7 +6,7 @@ from src.utils import _exit
 from src.utils import getKeyByValue
 from src.init import googleDrive, googleDocs
 from config import CHANNEL_PUBLIC_CHATS, GS_ROOT_FOLDER_ID, GS_TEMPLATE_FILE_ID
-from src.parse_digest import parseDigest
+from src.digest import parseDigest, buildDigest
 from datetime import datetime
 import logging
 import re
@@ -22,7 +22,14 @@ class ChatMessagingWithBotLogic:
         return t(self.langCode, key)
 
     async def _adminChatCommandsHandler(self):
-        # commands here
+        text = self.message.text
+        matchRes = re.match(r"^\/digest\s+(.+)$", text)
+
+        if matchRes:
+            fileId = matchRes.group(1)
+            table = await googleDocs.getTableFromDocument(fileId)
+            digest = await buildDigest(table)
+            await self.message.reply(digest)
 
         _exit()
 

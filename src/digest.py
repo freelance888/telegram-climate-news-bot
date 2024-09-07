@@ -67,3 +67,31 @@ async def parseDigest(text: str, entities: list[MessageEntity]) -> list:
         await __appedTotable(table, tmpStr, translatedText=translatedText)
 
     return table
+
+async def buildDigest(table: list) -> str:
+    table = table[1:]
+    keyWord = 'Source'
+    digest = f"<b><u>{table[0][2].get('src').strip()}</u></b>\n\n"
+    table = table[1:]
+    rowsLen = len(table)
+    i = 1
+
+    for row in table:
+        links = row[1].get('src').split()
+        enText = row[2].get('src')
+        enText = enText.strip()
+        enText = enText[:enText.find(keyWord)].strip()
+        enText = enText.strip()
+
+        if i != rowsLen:
+            enText = re.sub(r'\n\n', '\n', enText)
+
+        digest += f"{enText}\n"
+
+        for link in links:
+            digest += f'<a href="{link}">{keyWord}</a> '
+
+        digest += '\n\n'
+        i += 1
+
+    return digest
