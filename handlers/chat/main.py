@@ -5,7 +5,7 @@ from src.translations import t, getLangCode
 from src.utils import _exit
 from src.utils import getKeyByValue
 from src.init import googleDrive, googleDocs
-from config import CHANNEL_PUBLIC_CHATS, GS_ROOT_FOLDER_ID, GS_TEMPLATE_FILE_ID
+from config import CHANNEL_PUBLIC_CHATS, GS_ROOT_FOLDER_ID, GS_TEMPLATE_FILE_ID, ADMIN_CHAT, NEW_DIGEST_CREATED_NOTIFICATION_USERS
 from src.digest import parseDigest, buildDigest
 from datetime import datetime
 import logging
@@ -26,10 +26,17 @@ class ChatMessagingWithBotLogic:
         matchRes = re.match(r"^\/digest\s+(.+)$", text)
 
         if matchRes:
-            fileId = matchRes.group(1)
-            table = await googleDocs.getTableFromDocument(fileId)
-            digest = await buildDigest(table)
-            await self.message.reply(digest)
+            try:
+                waitMsg = await self.message.reply('⏳')
+                fileId = matchRes.group(1)
+                table = await googleDocs.getTableFromDocument(fileId)
+                digest = await buildDigest(table)
+                await self.message.reply(digest)
+            except Exception as e:
+                logging.error(f"Error: {e}")
+                await self.message.reply("⚠️ Error occurred while building digest. Please try again or contact the developer.")
+            finally:
+                await waitMsg.delete()
 
         _exit()
 
@@ -56,8 +63,11 @@ class ChatMessagingWithBotLogic:
             )
 
             await googleDocs.insertTable(fileId, table)
-
             logging.info(f"[{datetime.now()}] Digest was created: {fileId}")
+
+            notificationMessage = f"🔔 New digest was created:\nhttps://docs.google.com/document/d/{fileId}\n\n{NEW_DIGEST_CREATED_NOTIFICATION_USERS}"
+            await self.message.bot.send_message(ADMIN_CHAT, notificationMessage)
+
 
         _exit()
 
