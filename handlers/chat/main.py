@@ -30,6 +30,9 @@ class ChatMessagingWithBotLogic:
                 waitMsg = await self.message.reply('⏳')
                 fileId = matchRes.group(1)
                 fileId = fileId.split('/')[-2] if fileId.startswith('https://docs.google.com/document/d/') else fileId
+
+                logging.info(f"Build Digest ({fileId}) was requested")
+
                 table = await googleDocs.getTableFromDocument(fileId)
                 digest = await buildDigest(table)
                 await self.message.reply(digest)
