@@ -35,7 +35,9 @@ class GoogleDriveAPI(GoogleService):
         }
 
         created_folder = await self.retry(self._service.files().create(
-            body=folder_metadata, fields='id'
+            body=folder_metadata,
+            fields='id',
+            supportsAllDrives=True
         ))
 
         return created_folder['id']
