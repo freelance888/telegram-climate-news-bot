@@ -10,13 +10,11 @@ from aiogram.types import MessageEntity
 # except Exception as e:
 #     logging.error(e)
 
-enEndText = """❗️Learn about what is happening to our planet Earth and the true causes of climate change on the forum:
+enEndText = """❗️If you want to learn more about the causes of increasing climate change, we recommend you to read the report:
+<a href="https://be.creativesociety.com/storage/file-manager/climate-model-report-a4/ru/Climate%20Report.pdf">"On the progression of climatic disasters on Earth and their catastrophic consequences"</a>
 
-🔴 "Global Crisis. The Responsibility" 🔴
-
-https://rumble.com/c/CreativeSociety
-
-If you already understand the seriousness of what is happening, please share this information! Only by informing humanity and creating a public demand for the collaboration of scientists can we survive the escalating natural disasters!
+It is very important to have an emergency backpack in case of unforeseen circumstances.
+Share this information, because the more people realize the severity of climate change, the sooner the global scientific community will be able to come together to find solutions.
 """
 
 async def __appedTotable(table: list, text: str, links: list = [], translatedText: str = ''):
