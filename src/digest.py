@@ -1,5 +1,7 @@
 import re
 from html import escape
+from typing import List, Optional
+
 from aiogram.types import MessageEntity
 
 # import logging
@@ -60,7 +62,7 @@ def _message_entity_type_name(entity: MessageEntity) -> str:
 
 def _urls_from_entities_for_item(
     full_text: str,
-    entities: list[MessageEntity] | None,
+    entities: Optional[List[MessageEntity]],
     item: str,
 ) -> list[str]:
     """
@@ -105,7 +107,7 @@ def _urls_from_entities_for_item(
 def _coalesce_source_links(
     item: str,
     full_text: str,
-    entities: list[MessageEntity] | None,
+    entities: Optional[List[MessageEntity]],
 ) -> list[str]:
     """
     Prefer entity-based URLs when there are at least as many as in the plain text: covers
